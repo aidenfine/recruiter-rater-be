@@ -16,6 +16,8 @@ type V1RepositoryInterface interface {
 	SearchRecruiters(searchTerm string) ([]models.RecruiterResponse, error)
 	AddNewReview(payload *models.ReviewPayload) error
 	GetAllRecruiterReviews(recruiterId uuid.UUID, limit int) (*[]models.ReviewResponse, error)
+	UpdateRecruiterRating(ratingSum, numberOfRatings, rating int, recruiterId string) error
+	GetMostRecentReviews(limit int) (*[]models.ReviewResponse, error)
 }
 
 type V1Repository struct {
@@ -130,5 +132,38 @@ func (vr *V1Repository) GetAllRecruiterReviews(recruiterId uuid.UUID, limit int)
 	if err != nil {
 		return nil, err
 	}
+	return &items, nil
+}
+
+func (vr *V1Repository) UpdateRecruiterRating(ratingSum, numberOfRatings, rating int, recruiterId string) error {
+	query :=
+		`
+	UPDATE recruiters
+	SET rating = $1, rating_sum = $2, number_of_ratings = $3
+	WHERE id = $4
+	`
+
+	_, err := vr.db.Exec(query, rating, ratingSum, numberOfRatings, recruiterId)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (vr *V1Repository) GetMostRecentReviews(limit int) (*[]models.ReviewResponse, error) {
+	query :=
+		`
+	SELECT id, recruiter_id, created_at, rating, description, thumbs_down_count, thumbs_up_count
+	FROM reviews
+	ORDER BY created_at DESC
+	LIMIT $1
+	`
+
+	items := []models.ReviewResponse{}
+	err := vr.db.Select(&items, query, limit)
+	if err != nil {
+		return nil, err
+	}
+
 	return &items, nil
 }

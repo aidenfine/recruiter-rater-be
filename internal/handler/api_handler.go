@@ -146,13 +146,46 @@ func (h *ApiHandler) AddNewReview() http.HandlerFunc {
 			return
 		}
 
-		fmt.Println("adding new rating")
+		recruiter, err := h.V1Repository.GetRecruiterById(payload.RecruiterId)
+		if err != nil {
+			fmt.Println(err.Error())
+			common.Error(w, http.StatusInternalServerError, "internal server error")
+			return
+		}
+
 		err = h.V1Repository.AddNewReview(&payload)
 		if err != nil {
 			fmt.Print(err.Error())
 			common.Error(w, http.StatusInternalServerError, "internal server error")
 			return
 		}
+
+		// do this after successful added review
+		updatedRecruiterRatingCount := recruiter.NumberOfRatings + 1
+		updatedRecruiterRatingSum := recruiter.RatingSum + payload.Rating
+		updatedRecruiterRating := updatedRecruiterRatingSum / updatedRecruiterRatingCount
+
+		err = h.V1Repository.UpdateRecruiterRating(updatedRecruiterRatingSum, updatedRecruiterRatingCount, updatedRecruiterRating, payload.RecruiterId)
+		if err != nil {
+			fmt.Println(err.Error())
+			fmt.Println("error when updating recruiter rating")
+			common.Error(w, http.StatusInternalServerError, "internal server error")
+			return
+		}
+
 		common.WriteJSON(w, http.StatusCreated, "OK")
+	}
+}
+
+func (h *ApiHandler) GetMostRecentReviews() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		recentReviews, err := h.V1Repository.GetMostRecentReviews(6)
+		if err != nil {
+			fmt.Println(err.Error())
+			common.Error(w, http.StatusInternalServerError, "internal server error")
+			return
+		}
+
+		common.WriteJSON(w, http.StatusOK, recentReviews)
 	}
 }

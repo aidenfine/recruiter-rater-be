@@ -28,6 +28,7 @@ func (router *V1Router) V1Router() chi.Router {
 
 	r.Post("/reviews", handler.AddNewReview())
 	r.Get("/reviews", handler.GetRecruiterReviews())
+	r.Get("/reviews/recent", handler.GetMostRecentReviews())
 	return r
 
 }
