@@ -41,8 +41,8 @@ func (h *ApiHandler) GetRecruiter() http.HandlerFunc {
 			recruiter, err := h.V1Repository.SearchRecruiters(params.Search)
 			if err != nil {
 				if err.Error() == "not_found" {
-					fmt.Printf("[RECRUITER] Recruiter with request: %s not found prompt to create a new recruiter", params.Search)
-					fmt.Printf("[LOG] Request made by %s", r.RemoteAddr)
+					fmt.Printf("[RECRUITER] Recruiter with request: %s not found prompt to create a new recruiter\n", params.Search)
+					fmt.Printf("[LOG] Request made by %s\n", r.RemoteAddr)
 					common.WriteJSON(w, http.StatusNotFound, "NOT_FOUND")
 					return
 				} else {
@@ -76,8 +76,8 @@ func (h *ApiHandler) GetRecruiterById() http.HandlerFunc {
 			common.Error(w, http.StatusInternalServerError, "internal server error")
 			return
 		}
-		fmt.Printf("[RECRUITER] Getting recruiter %s, id: %s", recruiter.Name, recruiter.Id)
-		fmt.Printf("[LOG] Request made by %s", r.RemoteAddr)
+		fmt.Printf("[RECRUITER] Getting recruiter %s, id: %s\n", recruiter.Name, recruiter.Id)
+		fmt.Printf("[LOG] Request made by %s\n", r.RemoteAddr)
 
 		common.WriteJSON(w, http.StatusOK, recruiter)
 
@@ -101,8 +101,8 @@ func (h *ApiHandler) AddNewRecruiter() http.HandlerFunc {
 			common.Error(w, http.StatusInternalServerError, "internal server error")
 			return
 		}
-		fmt.Println("[RECRUITER] Someone made a request to add a new recruiter with params %v\n", payload)
-		fmt.Printf("[LOG] Request made by %s", r.RemoteAddr)
+		fmt.Printf("[RECRUITER] Someone made a request to add a new recruiter with params %v\n", payload)
+		fmt.Printf("[LOG] Request made by %s\n", r.RemoteAddr)
 
 		common.WriteJSON(w, http.StatusCreated, "OK")
 
@@ -116,8 +116,8 @@ func (h *ApiHandler) GetRecruiterReviews() http.HandlerFunc {
 			return
 		}
 
-		fmt.Printf("[REVIEWS] Getting recruiter reviews for %s", params.RecruiterId)
-		fmt.Printf("[LOG] Request made by %s", r.RemoteAddr)
+		fmt.Printf("[REVIEWS] Getting recruiter reviews for %s\n", params.RecruiterId)
+		fmt.Printf("[LOG] Request made by %s\n", r.RemoteAddr)
 
 		if err := validate.Struct(params); err != nil {
 			common.Error(w, http.StatusBadRequest, err.Error())
